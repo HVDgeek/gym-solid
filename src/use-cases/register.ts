@@ -8,28 +8,26 @@ interface UserRegisterRequest {
   password: string;
 }
 
-export async function registerUseCase({
-  email,
-  name,
-  password,
-}: UserRegisterRequest) {
-  const password_hash = await hash(password, 6);
+export class RegisterUseCase {
+  constructor(private userRepository: any) {}
 
-  const userAlreadyExists = await prisma.user.findUnique({
-    where: {
+  async execute({ email, name, password }: UserRegisterRequest) {
+    const password_hash = await hash(password, 6);
+
+    const userAlreadyExists = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (userAlreadyExists) {
+      throw new Error("E-mail already exists.");
+    }
+
+    await this.userRepository.create({
       email,
-    },
-  });
-
-  if (userAlreadyExists) {
-    throw new Error("E-mail already exists.");
+      name,
+      password_hash,
+    });
   }
-
-  const prismaUsersRepository = new PrismaUserRepository();
-
-  await prismaUsersRepository.create({
-    email,
-    name,
-    password_hash,
-  });
 }
