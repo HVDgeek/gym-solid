@@ -12,7 +12,7 @@ export async function register(request: FastifyRequest, reply: FastifyReply) {
   const { email, name, password } = registerBodySchema.parse(request.body);
 
   try {
-    registerUseCase({
+    await registerUseCase({
       email,
       name,
       password,
